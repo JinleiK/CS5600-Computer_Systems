@@ -16,11 +16,9 @@
  * Here's how you can initialize global mutex and cond variables
  */
 pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t C = PTHREAD_COND_INITIALIZER;
-pthread_cond_t C_customer = PTHREAD_COND_INITIALIZER;
 pthread_cond_t C_barber_wake = PTHREAD_COND_INITIALIZER;
+pthread_cond_t C_barber_ready = PTHREAD_COND_INITIALIZER;
 pthread_cond_t C_customer_waiting = PTHREAD_COND_INITIALIZER;
-pthread_cond_t C_barber_cutting = PTHREAD_COND_INITIALIZER;
 pthread_cond_t C_haircut_done = PTHREAD_COND_INITIALIZER;
 pthread_cond_t C_customer_leave = PTHREAD_COND_INITIALIZER;
 
@@ -33,6 +31,11 @@ int ready_customers = 0;
 // number of customers leave immediately
 int leave_customers = 0;
 
+//val for stastic in q3
+void *timer = NULL;
+void *in_shop_counter = NULL;
+void *in_chair_counter = NULL;
+
 /* the barber method
  */
 void barber(void)
@@ -42,17 +45,16 @@ void barber(void)
         /* your code here */
         if(ready_customers == 0){    // no customer waiting for haircut
             printf("DEBUG: %f barber goes to sleep\n", timestamp());
-            // barber goes to sleep
-            pthread_cond_wait(&C_customer, &m);
-            // customer comes, wakes up the barber
-            pthread_cond_signal(&C_barber_wake);
-            printf("DEBUG: %f barber wakes up\n", timestamp());
+            // barber goes to sleep, and wait for customer to wake him up
+            pthread_cond_wait(&C_barber_wake, &m);
+            // barber tells the customer he is ready
+            pthread_cond_signal(&C_barber_ready);
+            
         } else{
             // barber picks up a customer waiting in the chair
             pthread_cond_signal(&C_customer_waiting);
         }
         // barber starts haircut
-        pthread_cond_wait(&C_barber_cutting, &m);
         sleep_exp(1.2, &m);
         // barber finishes haircut
         pthread_cond_signal(&C_haircut_done);
@@ -76,26 +78,31 @@ void customer(int customer_num)
         printf("DEBUG: %f customer %d leaves shop\n", timestamp(), customer_num);
         leave_customers ++;
     } else{
+		stat_timer_start(timer);//start counting the timer
+        stat_count_incr(in_shop_counter); 
         ready_customers ++;
         // if this is the only customer in shop
         if(ready_customers == 1){
             // wake up the barber
-            pthread_cond_signal(&C_customer);
-            // wait for the barber to wake up
-            pthread_cond_wait(&C_barber_wake, &m);
+            pthread_cond_signal(&C_barber_wake);
+            printf("DEBUG: %f barber wakes up\n", timestamp());
+            // wait for the barber ready for haircut
+            pthread_cond_wait(&C_barber_ready, &m);
         } else{// if the barber is busy
             // grab a seat, and wait until barber is free
             pthread_cond_wait(&C_customer_waiting, &m);
         }
-        // tell barber to start haircut
-        pthread_cond_signal(&C_barber_cutting);
         printf("DEBUG: %f customer %d starts haircut\n", timestamp(), customer_num);
+        stat_count_incr(in_chair_counter);
         // wait until barber finishes haircut
         pthread_cond_wait(&C_haircut_done, &m);
+        stat_count_decr(in_chair_counter);
         // leave the shop after haircut
         ready_customers --;
         pthread_cond_signal(&C_customer_leave);
+		stat_timer_stop(timer);
         printf("DEBUG: %f customer %d leaves shop\n", timestamp(), customer_num);
+        stat_count_decr(in_shop_counter);
     }
 
     pthread_mutex_unlock(&m);
@@ -167,4 +174,26 @@ void q2(void)
 void q3(void)
 {
     /* your code goes here */
+    timer = stat_timer();
+    in_shop_counter = stat_counter();
+    in_chair_counter = stat_counter();
+    
+	int i = 0;
+	pthread_t _barber;
+	pthread_create(&_barber, NULL, &barber_thread, NULL);
+	for (i = 0; i< CUSTOMER_NUM; i++){
+		pthread_t _customer;
+		pthread_create(&_customer, NULL, &customer_thread, (void *)i);
+	}
+	wait_until_done();
+
+    //calculate all required statistics
+    double turned_away_fraction = leave_customers*1.0 / total_customers;
+	double total_mean_time = stat_timer_mean(timer);
+    double in_shop_mean_time = stat_count_mean(in_shop_counter);
+	double total_mean_chair_time = stat_count_mean(in_chair_counter);
+	printf("Fraction of customer visits result in turning away due to a full shop %f\n", turned_away_fraction);
+	printf("Average time spent in the shop (including haircut) by a customer %f\n", total_mean_time);
+	printf("Average number of customers in the shop %f\n", in_shop_mean_time);
+	printf("Fraction of time someone is sitting in the barber's chair %f\n", total_mean_chair_time);
 }
