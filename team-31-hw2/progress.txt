@@ -1,0 +1,12 @@
+Assignment 1
+Team 31
+member: Jinlei Kuang(JK), Jingtong Liu(JL)
+FINISHED:
+2014/10/06: Went through and discussed the contents of Synchronization, part 1.
+2014/10/07: Discussed the requirements of the assignment, analyzed as many senarioes as possible, and drew a rough graphical notation on paper. Started to write the pseudo code
+2014/10/08: Started to write code based on the pseudo code
+2014/10/09: Finished code of Q1 & Q2, waits to debug
+FUTURE PLAN:
+10/10-10/13: Debug Q1 & Q2, make sure they work fine
+10/13-10/15: Finish Q3
+10/16-10/17: Integrated Test and problem fixed
