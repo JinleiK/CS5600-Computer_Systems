@@ -1,0 +1,10 @@
+Assignment 1
+Team 31
+member: Jinlei Kuang(JK), Jingtong Liu(JL)
+FINISHED:
+2014/09/09:JK and JL started working as a team!(cheers!)09/10:short introduce ourselves.09/16:We decided the work in the following two days:1, set up environment; 2, go through the slides and note again to get better understanding about the simple OS:3, go through the requirement again.09/19:Write process.txt.Exchange ideas about this assignment, have scheduled the plan for future and Start coding.
+FUTURE PLAN:
+09/19  - 09/21:finish Q1. DONE on 09/19!!!
+09/21  - 09/23:finish Q2.FINISH CODING on 09/19!!! Need more time to debug and make it pass all the test case.
+09/23  - 09/25:finish Q3.
+09/25  - 09/27:Integrated Test and problem fixed

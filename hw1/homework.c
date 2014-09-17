@@ -39,8 +39,13 @@ extern void **vector;
 /*q2*/
 #define INPUT_MAX_LEN 128
 char argv[10][INPUT_MAX_LEN];   //to store the arguments of the command
-int argv_num = 0;   //number of arguments 
-char cmd[INPUT_MAX_LEN];     //to store the input command
+int argv_num = 0;               //number of arguments 
+char cmd[INPUT_MAX_LEN];        //to store the input command
+/*q3*/
+stack_ptr_t pro1_sp		= NULL;	//Store proc1 context
+stack_ptr_t pro2_sp		= NULL;	//Store proc2 context
+stack_ptr_t stack_sp	= NULL;	//Used when return to main
+stack_ptr_t main_sp		= NULL;	//Store main context
 /*
  * Question 1.
  *
@@ -97,6 +102,7 @@ void q1(void)
         printStr = proc1;
         printStr();
     }
+    return;
 }
 
 
@@ -139,7 +145,7 @@ char *getarg(int i)		/* vector index = 2 */
     /*
      * Your code here. 
      */
-    if(i < argv_num && argv[i][0] != '\0')
+    if(i < argv_num && *argv[i] != '\0')
         return argv[i];
     return NULL;
 }
@@ -177,34 +183,42 @@ void q2(void)
     line = malloc(sizeof(*line) * INPUT_MAX_LEN);
     int word_num = 0;
     int suc = 0;
+    void (*runcmd)(void);
     while (1) {
 	/* get a line */
         printf("> ");
         readline(line, INPUT_MAX_LEN);
-        printf("%s", line);
 	/* split it into words */
         word_num = splitWords(line);
 	/* if zero words, continue */
         if(word_num == 0)
             continue;
 	/* if first word is "quit", break */
-        if(strcmp(cmd, "quit") == 0)
+	if(strcmp(cmd, "quit") == 0)
             break;
 	/* make sure 'getarg' can find the remaining words */
 	/* load and run the command */
+	else 
+	{
         suc = readfile(cmd, proc2);
-        if(suc != 0){
-            int (*runcmd)(void) = proc2;
-            runcmd();
-        }else{
+        if(suc != 0)
+	    {
+           	runcmd = proc2;
+           	runcmd();
+        }
+        else
+	    {
             perror("can't find and load the command!");
         }
+	}
+      
     }
     /*
      * Note that you should allow the user to load an arbitrary command,
      * and print an error if you can't find and load the command binary.
      */
      free(line);
+     return ;
 }
 
 /*
@@ -233,22 +247,60 @@ void q2(void)
 void yield12(void)		/* vector index = 3 */
 {
     /* Your code here */
+	do_switch(&pro1_sp, pro2_sp);
 }
 
 void yield21(void)		/* vector index = 4 */
 {
     /* Your code here */
+	do_switch(&pro2_sp, pro1_sp);
 }
 
 void uexit(void)		/* vector index = 5 */
 {
     /* Your code here */
+	do_switch(NULL, main_sp);
 }
 
 void q3(void)
 {
-    /* Your code here */
-    /* load q3prog1 into process 1 and q3prog2 into process 2 */
+    /* Your code here */ 
+	// declear the temp var
+	int result = 0;
+
+	/* load q3prog1 into process 1 and q3prog2 into process 2 */
+	// load file
+	result = readfile("q3prog1", proc1);
+	if (result == 0)
+	{
+		perror("Faild load the file: q3prog1");
+		return;
+	}
+	result = readfile("q3prog2", proc2);
+	if (result == 0)
+	{
+		perror("Faild load the file: q3prog2");
+		return;
+	}
+
+	//re-define syscall table
+	vector[0] = &print;
+	vector[1] = &readline;
+	vector[2] = &getarg;
+	vector[3] = &yield12;
+	vector[4] = &yield21;
+	vector[5] = &uexit;
+
+	//Setup stack for proc1 and proc2
+	pro1_sp = setup_stack(proc1_stack, proc1);
+	pro2_sp = setup_stack(proc2_stack, proc2);
+
+	// Store current stack into main_sp and call proc1
+	do_switch(&main_sp, pro1_sp);
+
+	//exit
+	uexit();
+	return;
 }
 
 

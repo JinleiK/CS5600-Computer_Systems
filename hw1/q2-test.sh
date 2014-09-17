@@ -11,7 +11,7 @@ echo Question 2
 echo '- Basic execution'
 
 $EXE q2 > $TMP <<EOF || RESULT=FAILED
-q3prog my_pattern
+q2prog my_pattern
 this is a test of a line
 that didn't contain the pattern; nor did the second
 but the third one had 'my_pattern'
