@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include "blkdev.h"
+
+int main(int argc, char **argv)
+{
+    /* This code reads arguments <stripesize> d1 d2 d3 ...
+     * Note that you don't need any extra images, as there's no way to
+     * repair a striped volume after failure.
+     */
+    struct blkdev *disks[10];
+    int i, ndisks, stripesize = atoi(argv[1]);
+
+    for (i = 2, ndisks = 0; i < argc; i++)
+        disks[ndisks++] = image_create(argv[i]);
+
+    /* and creates a striped volume with the specified stripe size
+     */
+    struct blkdev *striped = striped_create(ndisks, disks, stripesize);
+    assert(striped != NULL);
+
+    /* your tests here */
+
+    /* from pdf:
+       - reports the correct size
+       - reads data from the right disks and locations. (prepare disks
+         with known data at various locations and make sure you can read it back) 
+       - overwrites the correct locations. i.e. write to your prepared disks
+         and check the results (using something other than your stripe
+         code) to check that the right sections got modified. 
+       - fail a disk and verify that the volume fails.
+       - large (> 1 stripe set), small, unaligned reads and writes
+         (i.e. starting, ending in the middle of a stripe), as well as small
+         writes wrapping around the end of a stripe. 
+       - Passes all your other tests with different stripe sizes (e.g. 2,
+         4, 7, and 32 sectors) and different numbers of disks.  
+     */
+    
+    printf("Striping Test: SUCCESS\n");
+    return 0;
+}
