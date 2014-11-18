@@ -1,0 +1,5 @@
+1. went through the materials of hw4
+2. went through the files in hw4 repository and got a picture of their relationships
+3. discussed the file structure of disk1.img and the tasks we need to complete
+4. started to work on homework.c and wrote the code for "init" function
+5. continued from"getattr"

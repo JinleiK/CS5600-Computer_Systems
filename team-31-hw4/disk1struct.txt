@@ -1,0 +1,79 @@
+Superblock:
+ magic:                     56005600
+ block size:                1024
+ file system size (blocks): 1024
+ FAT length (blocks):       4
+ Root directory start:      5
+FAT:
+[0]: 0 EOF
+[1]: 0 EOF
+[2]: 0 EOF
+[3]: 0 EOF
+[4]: 0 EOF
+[5]: 0 EOF
+[6]: 0 EOF
+[7]: 0 EOF
+[8]: 0 EOF
+[9]: 10 -
+[10]: 0 EOF
+[11]: 0 EOF
+[12]: 0 EOF
+[13]: 0 EOF
+[14]: 0 EOF
+[15]: 0 EOF
+[16]: 0 EOF
+[17]: 0 EOF
+[18]: 19 -
+[19]: 0 EOF
+[20]: 0 EOF
+[21]: 22 -
+[22]: 0 EOF
+[23]: 0 EOF
+
+Block 5: directory
+   [0] home 6 dir  0
+   [1] work 11 dir  0
+   [2] dir_other 17 dir  0
+   [3] file.txt 21 file 1800
+   [4] another-file 23 file 400
+Block 6: directory
+   [0] small-1 7 file 216
+   [1] small-2 8 file 144
+   [2] big-1 9 file 1200
+Block 7: data
+   'small-1 small-1 '...
+Block 8: data
+   'small-2 small-2 '...
+Block 9: data
+   'big-1 big-1 big-'...
+Block 10: data
+   '1 big-1 big-1 bi'...
+Block 11: directory
+   [0] dir-1 12 dir  0
+   [1] dir-2 16 dir  0
+Block 12: directory
+   [0] small-3 13 file 160
+   [1] small-4 14 file 160
+   [2] small-5 15 file 160
+Block 13: data
+   'small-3 small-3 '...
+Block 14: data
+   'small-4 small-4 '...
+Block 15: data
+   'small-5 small-5 '...
+Block 16: directory
+Block 17: directory
+   [0] big-2 18 file 1200
+   [1] small-6 20 file 160
+Block 18: data
+   'big-2 big-2 big-'...
+Block 19: data
+   '2 big-2 big-2 bi'...
+Block 20: data
+   'small-6 small-6 '...
+Block 21: data
+   'file.txt file.tx'...
+Block 22: data
+   't file.txt file.'...
+Block 23: data
+   'another another '...
